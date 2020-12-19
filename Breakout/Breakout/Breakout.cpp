@@ -108,7 +108,6 @@ int main()
     Text stateText;
     stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
 
-    currentState = Menu;
     while (window.isOpen())
     {
         sf::Event event;

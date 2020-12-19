@@ -32,7 +32,7 @@ int main()
 
 #pragma region Textures
     // Block Textures
-    Texture redBlock, orangeBlock, yellowBlock, greenBlock;
+    Texture redBlock, orangeBlock, yellowBlock, greenBlock, menuOverlay;
 
     if (!redBlock.loadFromFile(IMAGE_PATH "red.png"))
         return EXIT_FAILURE;
@@ -41,6 +41,8 @@ int main()
     if (!yellowBlock.loadFromFile(IMAGE_PATH "yellow.png"))
         return EXIT_FAILURE;
     if (!greenBlock.loadFromFile(IMAGE_PATH "green.png"))
+        return EXIT_FAILURE;
+    if (!menuOverlay.loadFromFile(IMAGE_PATH "MainScreen.png"))
         return EXIT_FAILURE;
 
     // Paddle Texture
@@ -94,6 +96,11 @@ int main()
     green.body.setSize(red.size);
 #pragma endregion
 
+    Sprite MainMenuOverlay;
+    MainMenuOverlay.setTexture(menuOverlay);
+    MainMenuOverlay.setPosition(0, 0);
+
+
     RectangleShape paddle;
     paddle.setTexture(&paddleTexture);
     paddle.setSize(Vector2f(200, 50));
@@ -124,6 +131,7 @@ int main()
             case 0:
                 // Menu
                 stateText.setString("Menu");
+                window.draw(MainMenuOverlay);
                 break;
             case 1:
                 // Play
@@ -161,6 +169,10 @@ int main()
         window.draw(ball.body);
         window.draw(stateIndicator);
         window.draw(stateText);
+       
+        if (currentState == Menu) {
+            window.draw(MainMenuOverlay);
+        }
 
         window.display();
     }

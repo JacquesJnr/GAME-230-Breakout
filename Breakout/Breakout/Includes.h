@@ -8,8 +8,16 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 
-//C Libraries
+//C++ Libraries
 #include <string>
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
+
+//Header Files
+#include "Definitions.h"
+#include "Paddle.h"
+#include "Ball.h"
+#include "Blocks.h"
+#include "Menu.h"
+#include "GameState.h"

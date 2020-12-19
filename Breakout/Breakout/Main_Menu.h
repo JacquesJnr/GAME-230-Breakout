@@ -1,5 +1,5 @@
 #pragma once
-class Menu
+class Main_Menu
 {
 };
 

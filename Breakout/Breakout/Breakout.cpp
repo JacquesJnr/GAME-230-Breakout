@@ -114,11 +114,12 @@ int main()
         while (window.pollEvent(event))
         {
             Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y); // TODO add play on click or key press
+           
             SetState();
-            // Delta time
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
 
+            // State Machine
             switch (currentState) {
             case 0:
                 // Menu
@@ -143,7 +144,7 @@ int main()
                 // Exit
                 stateText.setString("Exiting");
                 break;
-            }               
+            }
 
             // Close Window
             if (event.type == sf::Event::Closed)
@@ -163,7 +164,6 @@ int main()
 
         window.display();
     }
-
     return 0;
 }
 

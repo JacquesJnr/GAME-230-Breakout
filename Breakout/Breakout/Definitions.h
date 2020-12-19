@@ -6,3 +6,4 @@
 
 #define IMAGE_PATH "resources/images/"
 #define AUDIO_PATH "resources/audio/"
+#define FONT_PATH "resources/fonts/"

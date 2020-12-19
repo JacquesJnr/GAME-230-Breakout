@@ -1,6 +1,8 @@
 #include "Includes.h"
 using namespace sf;
 
+GameState currentState;
+void SetState();
 
 int main()
 {
@@ -54,6 +56,16 @@ int main()
         return EXIT_FAILURE;
 #pragma endregion   
 
+#pragma region Fonts
+    Font Bungee, PressStart;
+
+    if (!Bungee.loadFromFile(FONT_PATH "Bungee.ttf"))
+        return EXIT_FAILURE;
+
+    if (!PressStart.loadFromFile(FONT_PATH "PressStart2P.ttf"))
+        return EXIT_FAILURE;
+#pragma endregion
+
 #pragma region Red Brick
     red.body.setOrigin(0.5f, 0.5f);
     red.body.setPosition(WIDTH / 2 - 100, 50);
@@ -82,7 +94,7 @@ int main()
     green.body.setSize(red.size);
 #pragma endregion
 
-    sf::RectangleShape paddle;
+    RectangleShape paddle;
     paddle.setTexture(&paddleTexture);
     paddle.setSize(Vector2f(200, 50));
     paddle.setPosition(WIDTH / 2 - 150, 670);   
@@ -90,24 +102,51 @@ int main()
     ball.body.setTexture(&ballTexture);
     ball.body.setSize(ball.size);
 
+    Text stateIndicator;
+    stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
+
+    Text stateText;
+    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
+
+    currentState = Menu;
     while (window.isOpen())
     {
-        // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event))
         {
-            //Update
-
+            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y); // TODO add play on click or key press
+            SetState();
             // Delta time
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
 
-            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y); // TODO add play on click or key press
-            paddle.setPosition(Vector2f(mousePos.x - 420, 670));    
-            ball.body.setPosition(paddle.getPosition().x + 65, paddle.getPosition().y - 100); // Sets the ball to follow the paddle
-          
+            switch (currentState) {
+            case 0:
+                // Menu
+                stateText.setString("Menu");
+                break;
+            case 1:
+                // Play
+                stateText.setString("Playing");
+                paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
+                ball.body.setPosition(paddle.getPosition().x + 65, paddle.getPosition().y - 100); // Sets the ball to follow the paddle
+                break;
+            case 2:
+                // Paused
+                stateText.setString("Paused");
 
-            // Close
+                break;
+            case 3:
+                // Round End
+                stateText.setString("Round Ended");
+                break;
+            case 4:
+                // Exit
+                stateText.setString("Exiting");
+                break;
+            }               
+
+            // Close Window
             if (event.type == sf::Event::Closed)
                 window.close();          
         }       
@@ -120,9 +159,29 @@ int main()
         window.draw(green.body);
         window.draw(paddle);
         window.draw(ball.body);
+        window.draw(stateIndicator);
+        window.draw(stateText);
 
         window.display();
     }
 
     return 0;
+}
+
+void SetState() {
+
+    if (Keyboard::isKeyPressed(Keyboard::Num1))
+        currentState = Menu;
+
+    if (Keyboard::isKeyPressed(Keyboard::Num2))
+        currentState = Play;
+
+    if (Keyboard::isKeyPressed(Keyboard::Num3))
+        currentState = Paused;
+
+    if (Keyboard::isKeyPressed(Keyboard::Num4))
+        currentState = RoundEnd;
+
+    if (Keyboard::isKeyPressed(Keyboard::Num5))
+        currentState = Exit;
 }

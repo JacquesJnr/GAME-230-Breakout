@@ -4,11 +4,18 @@ using namespace sf;
 
 int main()
 {
-    RenderWindow app(VideoMode(WIDTH, HEIGHT), "Breakout!");
-    app.setFramerateLimit(60);
+    Clock clock;
+    float deltaTime = 0.0f;
+    Time currentTime;
 
-    app.clear();
-    app.display();
+    RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
+    window.setFramerateLimit(60);
+
+    window.clear();
+    window.display();
+
+    deltaTime = clock.getElapsedTime().asSeconds();
+    clock.restart();
 
     return 0;
 }

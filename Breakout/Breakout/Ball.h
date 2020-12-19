@@ -1,5 +1,5 @@
 #pragma once
-#include "Includes.h"
+#include "SFML/Graphics.hpp"
 
 class Ball
 {

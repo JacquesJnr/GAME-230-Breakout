@@ -1,2 +1,2 @@
 #pragma once
-enum  GameState {Menu, Play, GameOver, Exit};
+enum  GameState {Menu, Play, Paused, GameOver, Exit};

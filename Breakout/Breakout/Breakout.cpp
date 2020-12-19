@@ -10,11 +10,23 @@ int main()
 
     // Window dimensions & type
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
-    window.setFramerateLimit(60); 
+    window.setFramerateLimit(60);
 
-    // Delta time
-    deltaTime = clock.getElapsedTime().asSeconds();
-    clock.restart();
+    struct Bricks {
+        RectangleShape body;
+        Vector2f size = Vector2f(100, 50);
+    };
+
+    Bricks red, orange, yellow, green;
+
+    struct Ball
+    {
+        RectangleShape body;
+        Vector2f size = Vector2f(60, 60);
+        float speed = 100;
+    };
+
+    Ball ball;
 
 #pragma region Textures
     // Block Textures
@@ -40,15 +52,8 @@ int main()
 
     if (!ballTexture.loadFromFile(IMAGE_PATH "ball.png"))
         return EXIT_FAILURE;
-#pragma endregion
+#pragma endregion   
 
-    struct Bricks {
-        sf::RectangleShape body;
-        Vector2f size = Vector2f(100, 50);
-    };
-   
-    Bricks red, orange, yellow, green;
-    
 #pragma region Red Brick
     red.body.setOrigin(0.5f, 0.5f);
     red.body.setPosition(WIDTH / 2 - 100, 50);
@@ -76,10 +81,14 @@ int main()
     green.body.setTexture(&greenBlock);
     green.body.setSize(red.size);
 #pragma endregion
+
     sf::RectangleShape paddle;
     paddle.setTexture(&paddleTexture);
     paddle.setSize(Vector2f(200, 50));
     paddle.setPosition(WIDTH / 2 - 150, 670);   
+
+    ball.body.setTexture(&ballTexture);
+    ball.body.setSize(ball.size);
 
     while (window.isOpen())
     {
@@ -88,8 +97,15 @@ int main()
         while (window.pollEvent(event))
         {
             //Update
-            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y);
-            paddle.setPosition(Vector2f(mousePos.x - 420, 670));
+
+            // Delta time
+            deltaTime = clock.getElapsedTime().asSeconds();
+            clock.restart();
+
+            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y); // TODO add play on click or key press
+            paddle.setPosition(Vector2f(mousePos.x - 420, 670));    
+            ball.body.setPosition(paddle.getPosition().x + 65, paddle.getPosition().y - 100); // Sets the ball to follow the paddle
+          
 
             // Close
             if (event.type == sf::Event::Closed)
@@ -103,6 +119,7 @@ int main()
         window.draw(orange.body);
         window.draw(green.body);
         window.draw(paddle);
+        window.draw(ball.body);
 
         window.display();
     }

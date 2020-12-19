@@ -9,4 +9,7 @@
 #include <SFML/Main.hpp>
 
 //C Libraries
+#include <string>
+#include <ctime>
+#include <cstdlib>
 #include <iostream>

@@ -1,12 +1,11 @@
 #include "Includes.h"
+#include "Definitions.h"
 using namespace sf;
 
-const int HEIGHT = 720;
-const int WIDTH = 1280;
 
 int main()
 {
-    RenderWindow app(VideoMode(1280, 720), "Breakout!");
+    RenderWindow app(VideoMode(WIDTH, HEIGHT), "Breakout!");
     app.setFramerateLimit(60);
 
     app.clear();

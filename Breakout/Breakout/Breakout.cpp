@@ -68,6 +68,16 @@ int main()
         return EXIT_FAILURE;
 #pragma endregion
 
+#pragma region Text
+    Text stateIndicator;
+    stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
+
+    Text stateText;
+    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
+
+    //Text livesIndicator TODO: Diplay Lives
+#pragma endregion
+
 #pragma region Red Brick
     red.body.setOrigin(0.5f, 0.5f);
     red.body.setPosition(WIDTH / 2 - 100, 50);
@@ -96,10 +106,11 @@ int main()
     green.body.setSize(red.size);
 #pragma endregion
 
+#pragma region Sprites
     Sprite MainMenuOverlay;
     MainMenuOverlay.setTexture(menuOverlay);
     MainMenuOverlay.setPosition(0, 0);
-
+#pragma endregion
 
     RectangleShape paddle;
     paddle.setTexture(&paddleTexture);
@@ -108,12 +119,6 @@ int main()
 
     ball.body.setTexture(&ballTexture);
     ball.body.setSize(ball.size);
-
-    Text stateIndicator;
-    stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
-
-    Text stateText;
-    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
 
     while (window.isOpen())
     {
@@ -167,13 +172,12 @@ int main()
         window.draw(green.body);
         window.draw(paddle);
         window.draw(ball.body);
-        window.draw(stateIndicator);
-        window.draw(stateText);
        
         if (currentState == Menu) {
             window.draw(MainMenuOverlay);
         }
-
+        window.draw(stateIndicator);
+        window.draw(stateText);
         window.display();
     }
     return 0;

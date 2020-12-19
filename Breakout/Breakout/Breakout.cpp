@@ -24,7 +24,7 @@ int main()
     struct Ball
     {
         RectangleShape body;
-        Vector2f size = Vector2f(60, 60);
+        Vector2f size = Vector2f(40, 40);
         float speed = 100;
     };
 
@@ -129,7 +129,7 @@ int main()
                 // Play
                 stateText.setString("Playing");
                 paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
-                ball.body.setPosition(paddle.getPosition().x + 65, paddle.getPosition().y - 100); // Sets the ball to follow the paddle
+                ball.body.setPosition(paddle.getPosition().x + 80, paddle.getPosition().y - 40); // Sets the ball to follow the paddle
                 break;
             case 2:
                 // Paused

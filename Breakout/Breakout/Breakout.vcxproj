@@ -148,7 +148,7 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Blocks.cpp" />
     <ClCompile Include="Breakout.cpp" />
-    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Main_Menu.cpp" />
     <ClCompile Include="Paddle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,7 +157,7 @@
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Includes.h" />
-    <ClInclude Include="Menu.h" />
+    <ClInclude Include="Main_Menu.h" />
     <ClInclude Include="Paddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

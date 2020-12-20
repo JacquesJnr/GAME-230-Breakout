@@ -50,13 +50,51 @@ int main()
 
     if (!paddleTexture.loadFromFile(IMAGE_PATH "paddle.png"))
         return EXIT_FAILURE;
+    paddleTexture.setSmooth(false);
 
     // Ball Texture
     Texture ballTexture;
-
     if (!ballTexture.loadFromFile(IMAGE_PATH "ball.png"))
         return EXIT_FAILURE;
-#pragma endregion   
+    ballTexture.setSmooth(false);
+
+#pragma endregion
+
+#pragma region SoundBuffers
+    SoundBuffer brickHit, countdown1, countdown2, gameOver, loseLife, paddleHit, wallHit, gainPoints;
+
+    if (!brickHit.loadFromFile(AUDIO_PATH "brickHit.wav"))
+        return EXIT_FAILURE;
+    if (!countdown1.loadFromFile(AUDIO_PATH "countdown1.wav"))
+        return EXIT_FAILURE;
+    if (!countdown2.loadFromFile(AUDIO_PATH "countdown2.wav"))
+        return EXIT_FAILURE;
+    if (!gameOver.loadFromFile(AUDIO_PATH "gameOver.wav"))
+        return EXIT_FAILURE;
+    if (!loseLife.loadFromFile(AUDIO_PATH "hurt.wav"))
+        return EXIT_FAILURE;
+    if (!paddleHit.loadFromFile(AUDIO_PATH "paddleHit.wav"))
+        return EXIT_FAILURE;
+    if (!wallHit.loadFromFile(AUDIO_PATH "wallHit.wav"))
+        return EXIT_FAILURE;
+    if (!gainPoints.loadFromFile(AUDIO_PATH "points.wav"))
+        return EXIT_FAILURE;
+
+
+#pragma endregion
+
+#pragma region Sounds
+    Sound brickSound, wallSound, paddleSound, lifeSound, pointSound, gameOverSound, countdownSound, countdownSound2;
+    brickSound.setBuffer(brickHit); brickSound.setVolume(50);
+    wallSound.setBuffer(wallHit); wallSound.setVolume(50);
+    paddleSound.setBuffer(paddleHit); wallSound.setVolume(50);
+    lifeSound.setBuffer(loseLife); lifeSound.setVolume(50);
+    pointSound.setBuffer(gainPoints); pointSound.setVolume(50);
+    gameOverSound.setBuffer(gameOver); gameOverSound.setVolume(50);
+    countdownSound.setBuffer(countdown1); countdownSound.setVolume(50);
+    countdownSound2.setBuffer(countdown2); countdownSound2.setVolume(50);
+#pragma endregion
+
 
 #pragma region Fonts
     Font Bungee, PressStart;
@@ -75,7 +113,9 @@ int main()
     Text stateText;
     stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
 
-    //Text livesIndicator TODO: Diplay Lives
+    Text startText;
+    startText.setPosition(410, 500); startText.setFont(PressStart); startText.setFillColor(Color::White); startText.setCharacterSize(16); startText.setString("Press Return To Start Game");
+
 #pragma endregion
 
 #pragma region Red Brick
@@ -137,6 +177,11 @@ int main()
                 // Menu
                 stateText.setString("Menu");
                 window.draw(MainMenuOverlay);
+
+                if (Keyboard::isKeyPressed(Keyboard::Enter)) {
+                    currentState = Play;
+                }
+
                 break;
             case 1:
                 // Play
@@ -166,15 +211,12 @@ int main()
 
         //Update
         window.clear();
-        window.draw(red.body);
-        window.draw(yellow.body);
-        window.draw(orange.body);
-        window.draw(green.body);
         window.draw(paddle);
         window.draw(ball.body);
        
         if (currentState == Menu) {
             window.draw(MainMenuOverlay);
+            window.draw(startText);
         }
         window.draw(stateIndicator);
         window.draw(stateText);

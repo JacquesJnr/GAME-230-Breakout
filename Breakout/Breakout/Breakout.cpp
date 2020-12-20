@@ -3,13 +3,31 @@ using namespace sf;
 
 GameState currentState;
 void SetState();
+constexpr float ballRadius{ 10.f }, ballVelocity{ 8.f };
+
+struct Ball1
+{
+    CircleShape shape;
+
+    // 2D vector that stores the Ball's velocity.
+    Vector2f velocity{ -ballVelocity, -ballVelocity };
+
+    Ball1(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setRadius(ballRadius);
+        shape.setOrigin(ballRadius, ballRadius);
+    }
+
+    // Let's "update" the ball: move its shape
+    void update() { shape.move(velocity); }
+};
 
 int main()
 {
     Clock clock;
     float deltaTime = 0.0f;
     Time currentTime;
-
     // Window dimensions & type
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
     window.setFramerateLimit(60);
@@ -21,14 +39,6 @@ int main()
 
     Bricks red, orange, yellow, green;
 
-    struct Ball
-    {
-        RectangleShape body;
-        Vector2f size = Vector2f(40, 40);
-        float speed = 100;
-    };
-
-    Ball ball;
 
 #pragma region Textures
     // Block Textures
@@ -95,7 +105,6 @@ int main()
     countdownSound2.setBuffer(countdown2); countdownSound2.setVolume(50);
 #pragma endregion
 
-
 #pragma region Fonts
     Font Bungee, PressStart;
 
@@ -138,7 +147,7 @@ int main()
     orange.body.setTexture(&orangeBlock);
     orange.body.setSize(red.size);
 #pragma endregion
-
+    
 #pragma region Green Brick
     green.body.setOrigin(0.5f, 0.5f);
     green.body.setPosition(WIDTH / 2 - 100, 200);
@@ -157,15 +166,15 @@ int main()
     paddle.setSize(Vector2f(200, 50));
     paddle.setPosition(WIDTH / 2 - 150, 670);   
 
-    ball.body.setTexture(&ballTexture);
-    ball.body.setSize(ball.size);
+    Ball1 ball{ paddle.getPosition().x + 100, paddle.getPosition().y - 20 };
+    ball.shape.setTexture(&ballTexture);
 
     while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
         {
-            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y); // TODO add play on click or key press
+            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y);
            
             SetState();
             deltaTime = clock.getElapsedTime().asSeconds();
@@ -179,26 +188,30 @@ int main()
                 window.draw(MainMenuOverlay);
 
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
-                    currentState = Play;
+                    currentState = Aiming;
                 }
 
                 break;
             case 1:
+                // Aim
+                stateText.setString("Aiming");
+                paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
+                ball.shape.setPosition(paddle.getPosition().x + 100, paddle.getPosition().y - 20); // Sets the ball to follow the paddle
+                break;
+            case 2:
                 // Play
                 stateText.setString("Playing");
                 paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
-                ball.body.setPosition(paddle.getPosition().x + 80, paddle.getPosition().y - 40); // Sets the ball to follow the paddle
-                break;
-            case 2:
-                // Paused
-                stateText.setString("Paused");
-
                 break;
             case 3:
+                // Paused
+                stateText.setString("Paused");
+                break;
+            case 4:
                 // Round End
                 stateText.setString("Round Ended");
                 break;
-            case 4:
+            case 5:
                 // Exit
                 stateText.setString("Exiting");
                 break;
@@ -212,12 +225,17 @@ int main()
         //Update
         window.clear();
         window.draw(paddle);
-        window.draw(ball.body);
+        window.draw(ball.shape);
        
         if (currentState == Menu) {
             window.draw(MainMenuOverlay);
             window.draw(startText);
         }
+
+        if (currentState == Playing) {
+            ball.update();
+        }
+
         window.draw(stateIndicator);
         window.draw(stateText);
         window.display();
@@ -231,14 +249,17 @@ void SetState() {
         currentState = Menu;
 
     if (Keyboard::isKeyPressed(Keyboard::Num2))
-        currentState = Play;
+        currentState = Aiming;
 
     if (Keyboard::isKeyPressed(Keyboard::Num3))
-        currentState = Paused;
+        currentState = Playing;
 
     if (Keyboard::isKeyPressed(Keyboard::Num4))
-        currentState = RoundEnd;
+        currentState = Paused;
 
     if (Keyboard::isKeyPressed(Keyboard::Num5))
+        currentState = RoundEnd;
+
+    if (Keyboard::isKeyPressed(Keyboard::Num6))
         currentState = Exit;
 }

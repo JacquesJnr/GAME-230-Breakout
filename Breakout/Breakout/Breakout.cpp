@@ -44,7 +44,7 @@ int main()
 
     float _brickWidth = 60.f;
     float _brickHeight = 20.f;
-    int _brickCountX = 11;
+    int _brickCountX = 20;
     int _brickCountY = 4;
 
  #pragma region Textures
@@ -130,14 +130,15 @@ int main()
 
     // Fills up a vector via a 2D for loop, creating
    // bricks in a grid-like pattern
-    for (int x{ 0 }; x < _brickCountX; ++x)
+    for (int x{0}; x < _brickCountX; ++x)
     {
-        for (int y{ 0 }; y < _brickCountY; ++y)
-            bricks.emplace_back( // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
-                (x + 1) * (_brickWidth + 3) + 22, (y + 2) * (_brickHeight + 3));
-    }
-
-        
+        for (int y{0}; y < _brickCountY; ++y) 
+        {
+            // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
+            bricks.emplace_back(
+                (x + 0.8f) * (_brickWidth + 2), (y + 2) * (_brickHeight + 20));
+        }
+    }        
 
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
@@ -205,7 +206,9 @@ int main()
 
        //Draw each 'brick' in bricks
         for (auto& brick : bricks) {
-            brick.shape.setTexture(&redBlock);
+            if (brick.shape.getPosition().y == 0) {
+                brick.shape.setFillColor(Color::Red);
+            }
             brick.Draw(&window);
         }
 

@@ -9,6 +9,10 @@ Ball::Ball(float mX, float mY)
     buffer.loadFromFile(AUDIO_PATH "wallHit.wav");
     wallSound.setBuffer(buffer);
     wallSound.setVolume(50);
+   
+    loss.loadFromFile(AUDIO_PATH "hurt.wav");
+    lifeSound.setBuffer(loss);
+    lifeSound.setVolume(50);
 }
 
 void Ball::Update(float deltaTime)
@@ -36,6 +40,17 @@ void Ball::Update(float deltaTime)
     else if (bottom() > HEIGHT + 100) 
     {
         velocity.y = -ballVelocity;
+        state = Aiming;
+        lives -= 1;
+        lifeSound.play();
+    }
+    else
+    {
+        state = Playing;
+    }
+
+    if (lives == 0) {
+        state = OutOfLives;
     }
 }
 

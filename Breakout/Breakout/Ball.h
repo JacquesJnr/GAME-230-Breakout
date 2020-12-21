@@ -1,5 +1,6 @@
 #pragma once
 #include "Definitions.h"
+#include "GameState.h"
 
 class Ball
 {
@@ -21,9 +22,12 @@ public:
 	float bottom() { return y() + shape.getRadius(); }
 	float ballRadius{ 10.f }, ballVelocity{ 10.f };
 
-	sf::SoundBuffer buffer;
-	sf::Sound wallSound;
+	int lives = 4;
 
+	sf::SoundBuffer buffer, loss;
+	sf::Sound wallSound;
+	sf::Sound lifeSound;
+	GameState state;
 private:
 
 };

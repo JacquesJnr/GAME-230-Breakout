@@ -8,9 +8,8 @@
 
 GameState currentState;
 void SetState(); // Allows me to debug and switch between states
-int roundCount;
+int roundCount = 0;
 int points;
-int lives = 3;
 
 template<class T1, class T2>
 bool isIntersecting(T1& thisShape, T2& otherShape)
@@ -27,13 +26,15 @@ void CheckCollisions(Paddle& _paddle, Ball& _ball)
     if (!isIntersecting(_paddle, _ball)) return;
     paddleSound.play();
 
-    _ball.velocity.y = -_ball.velocity.y;
+    _ball.velocity.y = -_ball.velocity.y ;
 
     // Direct the balls direction depending on the position where it hit the paddle
     if (_ball.x() < _paddle.x())
         _ball.velocity.x = -_ballVelocity;
-    else
+    else if(_ball.x() < _paddle.x())
         _ball.velocity.x = _ballVelocity;
+    else
+        _ball.velocity.x = _ballVelocity - 5;
 }
 
 void BrickCollisions(Bricks& _brick, Ball& _ball)
@@ -82,6 +83,9 @@ int main()
 {
     Clock clock; // System Clock
     float deltaTime = 0.0f; 
+    float timerTextFloat = 1.0f;
+
+    // Defines the window
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
@@ -126,7 +130,7 @@ int main()
         return EXIT_FAILURE;
     if (!paddleHit.loadFromFile(AUDIO_PATH "paddleHit.wav"))
         return EXIT_FAILURE;
-    if (!gainPoints.loadFromFile(AUDIO_PATH "points.wav"))
+    if (!roundComplete.loadFromFile(AUDIO_PATH "roundWin.wav"))
         return EXIT_FAILURE;
 
 
@@ -141,6 +145,7 @@ int main()
     gameOverSound.setBuffer(gameOver); gameOverSound.setVolume(50);
     countdownSound.setBuffer(countdown1); countdownSound.setVolume(50);
     countdownSound2.setBuffer(countdown2); countdownSound2.setVolume(50);
+    winSound.setBuffer(roundComplete); winSound.setVolume(50);
 #pragma endregion
 
 #pragma region Fonts
@@ -151,13 +156,57 @@ int main()
         return EXIT_FAILURE;
 #pragma endregion
 
-
-
 #pragma region Text
-    stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
-    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
-    startText.setPosition(410, 500); startText.setFont(PressStart); startText.setFillColor(Color::White); startText.setCharacterSize(16); startText.setString("Press Return To Start Game");
-    livesText.setPosition(1100, 30); livesText.setFont(PressStart); livesText.setFillColor(Color::White); livesText.setCharacterSize(16); livesText.setString("Lives: ");
+    stateIndicator.setPosition(0, 10);
+    stateIndicator.setFont(PressStart); 
+    stateIndicator.setFillColor(Color::White);
+    stateIndicator.setCharacterSize(14);
+    stateIndicator.setString("Current State: ");
+
+    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);
+    stateText.setFont(PressStart);
+    stateText.setFillColor(Color::Red); 
+    stateText.setCharacterSize(16);
+
+    startText.setPosition(410, 500);
+    startText.setFont(PressStart);
+    startText.setFillColor(Color::White);
+    startText.setCharacterSize(16); 
+    startText.setString("Press Space To Start Game");
+
+    livesText.setPosition(1100, 30);
+    livesText.setFont(PressStart); 
+    livesText.setFillColor(Color::White); 
+    livesText.setCharacterSize(16);
+    livesText.setString("Lives: ");
+
+    scoreText.setPosition(600, 0);
+    scoreText.setFont(PressStart);
+    scoreText.setFillColor(Color::White);
+    scoreText.setCharacterSize(40);
+
+    livesCount.setPosition(1210, 30);
+    livesCount.setFont(PressStart);
+    livesCount.setFillColor(Color::Yellow);
+    livesCount.setCharacterSize(16);
+
+    gameOverText.setPosition(500 , HEIGHT / 2);
+    gameOverText.setFont(PressStart);
+    gameOverText.setFillColor(Color::White); 
+    gameOverText.setCharacterSize(30);
+    gameOverText.setString("Game Over");
+
+    pressR.setPosition(490, 420);
+    pressR.setFont(PressStart);
+    pressR.setFillColor(Color::Blue);
+    pressR.setCharacterSize(16);
+    pressR.setString("Press R to restart");
+
+    roundText.setPosition(500, HEIGHT / 2);
+    roundText.setFont(PressStart);
+    roundText.setFillColor(Color::Red);
+    roundText.setCharacterSize(30);
+
 #pragma endregion
 
 #pragma region Sprites
@@ -166,18 +215,7 @@ int main()
     MainMenuOverlay.setPosition(0, 0);
 #pragma endregion
 
-    float brickCountX = 20.f;
-    float brickCountY = 4.f;
-    float brickWidth = 60.f;
-    float brickHeight = 20.f;
-
-    vector<Bricks> bricks;
-
-    for (int x{ 0 }; x < brickCountX; x++)
-        for (int y{ 0 }; y < brickCountY; y++)
-            bricks.emplace_back(
-                (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
-
+    
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
 
@@ -185,7 +223,19 @@ int main()
     Ball ball{ 0,0 };
     ball.shape.setTexture(&ballTexture);
 
-    while (window.isOpen())
+    float brickCountX = 20.f;
+    float brickCountY = 4.f;
+    float brickWidth = 60.f;
+    float brickHeight = 20.f;
+
+    // Create Bricks
+    vector<Bricks> bricks;
+    for (int x{ 0 }; x < brickCountX; x++)
+        for (int y{ 0 }; y < brickCountY; y++)
+            bricks.emplace_back(
+                (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
+
+    while (window.isOpen() && !Keyboard::isKeyPressed(Keyboard::Escape))
     {
         Event event;
         while (window.pollEvent(event))
@@ -193,7 +243,7 @@ int main()
             SetState();
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
-
+            
             // State Machine
             switch (currentState) {
             case 0:
@@ -201,13 +251,9 @@ int main()
                 stateText.setString("Menu");
                 window.draw(MainMenuOverlay);
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
-                    currentState = Aiming;
-                    points = 0;
-                    //Init bricks
-                    for (int x{ 0 }; x < brickCountX; x++)
-                        for (int y{ 0 }; y < brickCountY; y++)
-                            bricks.emplace_back(
-                                (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
+                    currentState = RoundStart;
+                    ball.lives = 4;
+                    roundCount++;
                 }
                 break;
             case 1:
@@ -220,20 +266,30 @@ int main()
                 }
                 break;
             case 2:
-                // Play          
-                stateText.setString("Playing");
+                // Round Start         
+                stateText.setString("Round Start");
+                bricks.clear();
+                //Init bricks
+                for (int x{ 0 }; x < brickCountX; x++)
+                    for (int y{ 0 }; y < brickCountY; y++)
+                        bricks.emplace_back(
+                            (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
                 break;
             case 3:
-                // Paused
-                stateText.setString("Paused");
+                // Playing
+                stateText.setString("Playing");
                 break;
             case 4:
-                // Round End
+                // Pause
                 stateText.setString("Round Ended");
                 break;
             case 5:
-                // Exit
-                stateText.setString("Exiting");
+                // Out Of Lives
+                stateText.setString("Out Of Lives");
+                break;
+            case 6:
+                // Switch Rounds
+                stateText.setString("Round Over");
                 break;
             }
 
@@ -242,17 +298,22 @@ int main()
                 window.close();          
         }
 
-        //Update
+        //Updating Text
+        auto _points = to_string(points);
+        scoreText.setString(_points);
+
+        auto _lives = to_string(ball.lives);
+        livesCount.setString(_lives);
+
+        auto _rounds = to_string(roundCount);
+
+        //Update Ball, Paddle, Bricks Vector, Game State etc.
         window.clear();
         playerPaddle.draw(window);
-        ball.Draw(window);
-        auto _points = to_string(points);
-        auto _lives = to_string(lives);
-        pointText.setPosition(640, 0); pointText.setFont(PressStart); pointText.setFillColor(Color::White); pointText.setCharacterSize(40); pointText.setString(_points);
-        window.draw(livesText);
-        livesCount.setPosition(1210, 30); livesCount.setFont(PressStart); livesCount.setFillColor(Color::Yellow); livesCount.setCharacterSize(16); livesCount.setString(_lives);
+        ball.Draw(window);        
+        window.draw(livesText);    
         window.draw(livesCount);
-        window.draw(pointText);
+        window.draw(scoreText);
       
        //Draw each 'brick' in bricks and set the texture of the brick based on its height
         for (auto& brick : bricks) {
@@ -277,15 +338,37 @@ int main()
         }
 
         if (currentState == Aiming) {
+            currentState = Aiming;
             ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
             playerPaddle.Update(deltaTime, window);
         }
 
+        if (currentState == RoundStart)
+        {
+            if (roundCount == 0) {
+                roundCount = 1;
+            }
+
+            if (timerTextFloat >= 0)
+            {
+                timerTextFloat -= 0.01f;
+            }
+
+            if (timerTextFloat <= 0.1f) {
+                currentState = Aiming;
+            }
+
+            roundText.setString("Round " + _rounds);
+            window.draw(roundText);
+        }
+
         if (currentState == Playing) {
+                     
+
             ball.Update(deltaTime);
             playerPaddle.Update(deltaTime, window);
             CheckCollisions(playerPaddle, ball);
-
+            currentState = ball.state;
             for (auto& brick : bricks) BrickCollisions(brick, ball);
 
             // And we use the "erase-remove idiom" to remove all `destroyed`
@@ -300,8 +383,35 @@ int main()
             ball.Draw(window);
             playerPaddle.draw(window);
             for (auto& brick : bricks) window.draw(brick.shape);
+           
 
-            
+            // If the player reaches the max score switch rounds 
+            if (points >= SCORE_MAX) {
+                currentState = Win;
+            }
+        }
+
+        if (currentState == OutOfLives) {
+            window.draw(gameOverText);
+            window.draw(pressR);
+
+            if (Keyboard::isKeyPressed(Keyboard::R)) {
+                currentState = RoundStart;
+                ball.lives = 3;
+                points = 0;
+                roundCount = 0;
+                timerTextFloat = 1;
+                bricks.clear();
+            }
+        }
+
+        if (currentState == Win) {
+            winSound.play();
+            ball.ballVelocity += 10;
+            points = 0; //Reset Score
+            roundCount+=1;
+            currentState = RoundStart;
+            timerTextFloat = 1;
         }
 
         window.draw(stateIndicator);
@@ -321,14 +431,14 @@ void SetState() {
         currentState = Aiming;
 
     if (Keyboard::isKeyPressed(Keyboard::Num3))
-        currentState = Playing;
+        currentState = RoundStart;
 
     if (Keyboard::isKeyPressed(Keyboard::Num4))
-        currentState = Paused;
+        currentState = Playing;
 
     if (Keyboard::isKeyPressed(Keyboard::Num5))
-        currentState = RoundEnd;
+        currentState = OutOfLives;
 
     if (Keyboard::isKeyPressed(Keyboard::Num6))
-        currentState = Exit;
+        currentState = Win;
 }

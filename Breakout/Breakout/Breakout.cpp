@@ -1,36 +1,21 @@
-#include "Includes.h"
+#include "Framework.h"
+#include "GameState.h"
+#include "Definitions.h"
+#include "Paddle.h"
+#include "Ball.h"
+#include "GameElements.h"
 using namespace sf;
 
 GameState currentState;
-void SetState();
-constexpr float ballRadius{ 10.f }, ballVelocity{ 8.f };
-
-struct Ball1
-{
-    CircleShape shape;
-
-    // 2D vector that stores the Ball's velocity.
-    Vector2f velocity{ -ballVelocity, -ballVelocity };
-
-    Ball1(float mX, float mY)
-    {
-        shape.setPosition(mX, mY);
-        shape.setRadius(ballRadius);
-        shape.setOrigin(ballRadius, ballRadius);
-    }
-
-    // Let's "update" the ball: move its shape
-    void update() { shape.move(velocity); }
-};
+void SetState(); // Allows me to debug and switch between states
 
 int main()
 {
-    Clock clock;
-    float deltaTime = 0.0f;
-    Time currentTime;
-    // Window dimensions & type
+    Clock clock; // System Clock
+    float deltaTime = 0.0f; 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
     window.setFramerateLimit(60);
+    window.setVerticalSyncEnabled(true);
 
     struct Bricks {
         RectangleShape body;
@@ -39,11 +24,7 @@ int main()
 
     Bricks red, orange, yellow, green;
 
-
 #pragma region Textures
-    // Block Textures
-    Texture redBlock, orangeBlock, yellowBlock, greenBlock, menuOverlay;
-
     if (!redBlock.loadFromFile(IMAGE_PATH "red.png"))
         return EXIT_FAILURE;
     if (!orangeBlock.loadFromFile(IMAGE_PATH "orange.png"))
@@ -71,8 +52,6 @@ int main()
 #pragma endregion
 
 #pragma region SoundBuffers
-    SoundBuffer brickHit, countdown1, countdown2, gameOver, loseLife, paddleHit, wallHit, gainPoints;
-
     if (!brickHit.loadFromFile(AUDIO_PATH "brickHit.wav"))
         return EXIT_FAILURE;
     if (!countdown1.loadFromFile(AUDIO_PATH "countdown1.wav"))
@@ -94,7 +73,6 @@ int main()
 #pragma endregion
 
 #pragma region Sounds
-    Sound brickSound, wallSound, paddleSound, lifeSound, pointSound, gameOverSound, countdownSound, countdownSound2;
     brickSound.setBuffer(brickHit); brickSound.setVolume(50);
     wallSound.setBuffer(wallHit); wallSound.setVolume(50);
     paddleSound.setBuffer(paddleHit); wallSound.setVolume(50);
@@ -106,8 +84,6 @@ int main()
 #pragma endregion
 
 #pragma region Fonts
-    Font Bungee, PressStart;
-
     if (!Bungee.loadFromFile(FONT_PATH "Bungee.ttf"))
         return EXIT_FAILURE;
 
@@ -116,13 +92,8 @@ int main()
 #pragma endregion
 
 #pragma region Text
-    Text stateIndicator;
     stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
-
-    Text stateText;
     stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
-
-    Text startText;
     startText.setPosition(410, 500); startText.setFont(PressStart); startText.setFillColor(Color::White); startText.setCharacterSize(16); startText.setString("Press Return To Start Game");
 
 #pragma endregion
@@ -161,12 +132,11 @@ int main()
     MainMenuOverlay.setPosition(0, 0);
 #pragma endregion
 
-    RectangleShape paddle;
-    paddle.setTexture(&paddleTexture);
-    paddle.setSize(Vector2f(200, 50));
-    paddle.setPosition(WIDTH / 2 - 150, 670);   
+    // Create Paddle
+    Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
 
-    Ball1 ball{ paddle.getPosition().x + 100, paddle.getPosition().y - 20 };
+    // Create Ball
+    Ball ball{ playerPaddle.shape.getPosition().x + 100, playerPaddle.shape.getPosition().y - 20 };
     ball.shape.setTexture(&ballTexture);
 
     while (window.isOpen())
@@ -174,8 +144,7 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            Vector2f mousePos(Mouse::getPosition().x, Mouse::getPosition().y);
-           
+          
             SetState();
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
@@ -186,22 +155,22 @@ int main()
                 // Menu
                 stateText.setString("Menu");
                 window.draw(MainMenuOverlay);
-
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
                     currentState = Aiming;
                 }
-
                 break;
             case 1:
                 // Aim
                 stateText.setString("Aiming");
-                paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
-                ball.shape.setPosition(paddle.getPosition().x + 100, paddle.getPosition().y - 20); // Sets the ball to follow the paddle
+                // Wait for player input to start playing
+                ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
+                if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
+                    currentState = Playing;
+                }
                 break;
             case 2:
                 // Play
                 stateText.setString("Playing");
-                paddle.setPosition(Vector2f(mousePos.x - 420, 670)); // Paddle follows mouse position
                 break;
             case 3:
                 // Paused
@@ -224,7 +193,7 @@ int main()
 
         //Update
         window.clear();
-        window.draw(paddle);
+        playerPaddle.draw(window);
         window.draw(ball.shape);
        
         if (currentState == Menu) {
@@ -232,8 +201,13 @@ int main()
             window.draw(startText);
         }
 
+        if (currentState == Aiming) {
+            playerPaddle.Update(deltaTime, window);
+        }
+
         if (currentState == Playing) {
-            ball.update();
+            ball.Update(deltaTime, playerPaddle);
+            playerPaddle.Update(deltaTime, window);
         }
 
         window.draw(stateIndicator);
@@ -243,6 +217,7 @@ int main()
     return 0;
 }
 
+// Allows me to debug and switch between states
 void SetState() {
 
     if (Keyboard::isKeyPressed(Keyboard::Num1))

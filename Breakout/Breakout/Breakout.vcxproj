@@ -156,9 +156,10 @@
     <ClInclude Include="Blocks.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="GameState.h" />
-    <ClInclude Include="Includes.h" />
+    <ClInclude Include="Framework.h" />
     <ClInclude Include="Main_Menu.h" />
     <ClInclude Include="Paddle.h" />
+    <ClInclude Include="GameElements.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

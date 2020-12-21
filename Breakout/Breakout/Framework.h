@@ -13,11 +13,3 @@
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
-
-//Header Files
-#include "Definitions.h"
-#include "Paddle.h"
-#include "Ball.h"
-#include "Blocks.h"
-#include "Main_Menu.h"
-#include "GameState.h"

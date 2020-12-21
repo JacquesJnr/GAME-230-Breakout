@@ -1,76 +1,32 @@
 #include "Ball.h"
 
-//Constructor: Initializes all the values
-
-Ball::Ball(sf::Texture* texture, sf::Vector2f size, sf::Vector2f Position)
+Ball::Ball(float mX, float mY)
 {
-
-
-	UpdateBallCollision();
+    shape.setPosition(mX, mY);
+    shape.setRadius(ballRadius);
+    shape.setOrigin(ballRadius, ballRadius);
 }
 
-
-//Logic: Updates the FloatRect used in Collision for the Ball, moves the Ball's Sprite
-
-void Ball::Logic(sf::RenderWindow& MyWindow)
+void Ball::Update(float deltaTime, Paddle paddle)
 {
-	UpdateBallCollision();
+    shape.move(velocity);
 
-	MoveBall(MyWindow);
+    // Keep ball within screen Width
+    if (left() < 0) velocity.x = ballVelocity;
+    else if (right() > WIDTH)
+        velocity.x = -ballVelocity;
+
+    // Keep ball within screen Height
+    if (top() < 0)
+        velocity.y = ballVelocity;
+    else if (bottom() > HEIGHT + 100)
+        velocity.y = -ballVelocity;
+    else if (bottom() > paddle.top() && x() < paddle.right() && x() > paddle.left()) {
+        velocity.y = -ballVelocity;
+    }
 }
 
-
-//UpdateBallCollision: Updates the FloatRect used in Collision Detection
-
-void Ball::UpdateBallCollision()
+void Ball::Draw(sf::RenderWindow& window)
 {
-	
-}
-
-
-//MoveBall: Moves the Ball using the forumula: D = s(v) when D = Displacement, s = Speed, and v = Velocity
-
-void Ball::MoveBall(sf::RenderWindow& MyWindow)
-{
-	
-}
-
-void Ball::SetVelocity(std::string Command)
-{
-	if (Command == "Right" && velx > 0)
-	{
-		velx = -velx;
-	}
-
-	if (Command == "Left" && velx < 0)
-	{
-		velx = -velx;
-	}
-
-	if (Command == "Top" && vely < 0)
-	{
-		vely = -vely;
-	}
-
-	if (Command == "Bottom" && vely > 0)
-	{
-		vely = -vely;
-	}
-}
-
-sf::FloatRect Ball::GetBallCollision()
-{
-	return BallCollision;
-}
-
-
-sf::Sprite Ball::GetBallSprite()
-{
-	return BallSprite;
-}
-
-
-void Ball::SetSpeed(int pspeed)
-{
-	speed = pspeed;
+    window.draw(shape);
 }

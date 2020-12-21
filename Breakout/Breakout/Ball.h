@@ -1,34 +1,27 @@
 #pragma once
-#include "SFML/Graphics.hpp"
+#include "Definitions.h"
+#include "Paddle.h"
 
 class Ball
 {
 public:
 
-	Ball(sf::Texture* texture, sf::Vector2f size, sf::Vector2f Position);
+	Ball(float mX, float mY);
+	void Update(float deltaTime, Paddle paddle);
+	void Draw(sf::RenderWindow& window);
 
-	void Logic(sf::RenderWindow& MyWindow);
+	sf::CircleShape shape;
+	// 2D vector that stores the Ball's velocity.
+	sf::Vector2f velocity{ -ballVelocity, -ballVelocity };
 
-	void UpdateBallCollision();
-
-	void MoveBall(sf::RenderWindow& MyWindow);
-
-	void SetSpeed(int pspeed);
-
-	void SetVelocity(std::string Command);
-
-	sf::FloatRect GetBallCollision();
-
-	sf::Sprite GetBallSprite();
+	float x() { return shape.getPosition().x; }
+	float y() { return shape.getPosition().y; }
+	float left() { return x() - shape.getRadius(); }
+	float right() { return x() + shape.getRadius(); }
+	float top() { return y() - shape.getRadius(); }
+	float bottom() { return y() + shape.getRadius(); }
 
 private:
-
-	sf::Sprite BallSprite;
-
-	int velx;
-	int vely;
-	int speed;
-
-	sf::FloatRect BallCollision;
+	float ballRadius{ 10.f }, ballVelocity{ 10.f };
 };
 

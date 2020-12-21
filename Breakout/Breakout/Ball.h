@@ -11,7 +11,7 @@ public:
 
 	sf::CircleShape shape;
 	// 2D vector that stores the Ball's velocity.
-	sf::Vector2f velocity{ -ballVelocity, -ballVelocity };
+	sf::Vector2f velocity{ ballVelocity, -ballVelocity };
 
 	float x() { return shape.getPosition().x; }
 	float y() { return shape.getPosition().y; }
@@ -20,5 +20,11 @@ public:
 	float top() { return y() - shape.getRadius(); }
 	float bottom() { return y() + shape.getRadius(); }
 	float ballRadius{ 10.f }, ballVelocity{ 10.f };
+
+	sf::SoundBuffer buffer;
+	sf::Sound wallSound;
+
+private:
+
 };
 

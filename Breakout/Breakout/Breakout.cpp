@@ -8,6 +8,8 @@
 
 GameState currentState;
 void SetState(); // Allows me to debug and switch between states
+int roundCount;
+int points;
 
 template<class T1, class T2>
 bool isIntersecting(T1& thisShape, T2& otherShape)
@@ -22,6 +24,7 @@ void CheckCollisions(Paddle& _paddle, Ball& _ball)
 
     // If there's no intersection, return
     if (!isIntersecting(_paddle, _ball)) return;
+    paddleSound.play();
 
     _ball.velocity.y = -_ball.velocity.y;
 
@@ -41,6 +44,8 @@ void BrickCollisions(Bricks& _brick, Ball& _ball)
 
     // Otherwise, the brick has been hit!
     _brick.Destroyed = true;
+    brickSound.play(); 
+    points += 5;
 
     // Calculates when magnitude of the overlap between the ball and the brick
     float overlapLeft{ _ball.right() - _brick.left() };
@@ -70,14 +75,6 @@ void BrickCollisions(Bricks& _brick, Ball& _ball)
         _ball.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
     else
         _ball.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
-}
-void InitBricks(vector<Bricks>) {
-
-    
-}
-
-void DrawBricks(vector<Bricks>bricks) {
-
 }
 
 int main()
@@ -128,8 +125,6 @@ int main()
         return EXIT_FAILURE;
     if (!paddleHit.loadFromFile(AUDIO_PATH "paddleHit.wav"))
         return EXIT_FAILURE;
-    if (!wallHit.loadFromFile(AUDIO_PATH "wallHit.wav"))
-        return EXIT_FAILURE;
     if (!gainPoints.loadFromFile(AUDIO_PATH "points.wav"))
         return EXIT_FAILURE;
 
@@ -159,7 +154,6 @@ int main()
     stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
     stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
     startText.setPosition(410, 500); startText.setFont(PressStart); startText.setFillColor(Color::White); startText.setCharacterSize(16); startText.setString("Press Return To Start Game");
-
 #pragma endregion
 
 #pragma region Sprites
@@ -168,37 +162,30 @@ int main()
     MainMenuOverlay.setPosition(0, 0);
 #pragma endregion
 
+    float brickCountX = 20.f;
+    float brickCountY = 4.f;
+    float brickWidth = 60.f;
+    float brickHeight = 20.f;
+
     vector<Bricks> bricks;
 
-    float _brickWidth = 60.f;
-    float _brickHeight = 20.f;
-    int _brickCountX = 20;
-    int _brickCountY = 4;
-    // Fills up a vector via a 2D for loop, creating
-    // bricks in a grid-like pattern
-    for (int x{ 0 }; x < _brickCountX; x++)
-    {
-        for (int y{ 0 }; y < _brickCountY; y++)
-        {
-            // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
+    for (int x{ 0 }; x < brickCountX; x++)
+        for (int y{ 0 }; y < brickCountY; y++)
             bricks.emplace_back(
-                (x + 0.8f) * (_brickWidth + 2), (y + 2) * (_brickHeight + 20));
-        }
-    }
+                (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
 
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
 
     // Create Ball
-    Ball ball{ playerPaddle.shape.getPosition().x + 100, playerPaddle.shape.getPosition().y - 20 };
+    Ball ball{ 0,0 };
     ball.shape.setTexture(&ballTexture);
 
     while (window.isOpen())
     {
         Event event;
         while (window.pollEvent(event))
-        {
-          
+        {          
             SetState();
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
@@ -211,6 +198,15 @@ int main()
                 window.draw(MainMenuOverlay);
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
                     currentState = Aiming;
+
+                    points = 0;
+
+                    //Init bricks
+                    for (int x{ 0 }; x < brickCountX; x++)
+                        for (int y{ 0 }; y < brickCountY; y++)
+                            bricks.emplace_back(
+                                (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
+
                 }
                 break;
             case 1:
@@ -218,12 +214,12 @@ int main()
                 stateText.setString("Aiming");
                 // Wait for player input to start playing
                 ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
-                /*if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
+                if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
                     currentState = Playing;
-                }*/
+                }
                 break;
             case 2:
-                // Play
+                // Play          
                 stateText.setString("Playing");
                 break;
             case 3:
@@ -243,12 +239,15 @@ int main()
             // Close Window
             if (event.type == Event::Closed)
                 window.close();          
-        }       
+        }
 
         //Update
         window.clear();
         playerPaddle.draw(window);
         ball.Draw(window);
+        auto s = to_string(points);
+        pointText.setPosition(900, 0); pointText.setFont(PressStart); pointText.setFillColor(Color::White); pointText.setCharacterSize(40); pointText.setString(s);
+        window.draw(pointText);
       
        //Draw each 'brick' in bricks and set the texture of the brick based on its height
         for (auto& brick : bricks) {
@@ -273,6 +272,7 @@ int main()
         }
 
         if (currentState == Aiming) {
+            ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
             playerPaddle.Update(deltaTime, window);
         }
 
@@ -280,14 +280,21 @@ int main()
             ball.Update(deltaTime);
             playerPaddle.Update(deltaTime, window);
             CheckCollisions(playerPaddle, ball);
+
             for (auto& brick : bricks) BrickCollisions(brick, ball);
 
-            // Using this nutty "erase-remove idiom" to remove all `destroyed`
-            // blocks from the block vector - using a cool C++11 lambda!  https://en.cppreference.com/w/cpp/container/vector/erase2
-            bricks.erase(remove_if(begin(bricks), end(bricks),[](const Bricks& mBrick)
+            // And we use the "erase-remove idiom" to remove all `destroyed`
+            // blocks from the block vector - using a cool C++11 lambda!
+            bricks.erase(remove_if(begin(bricks), end(bricks),
+                [](const Bricks& mBrick)
             {
                 return mBrick.Destroyed;
-            }),end(bricks));
+            }),
+                end(bricks));
+
+            ball.Draw(window);
+            playerPaddle.draw(window);
+            for (auto& brick : bricks) window.draw(brick.shape);
         }
 
         window.draw(stateIndicator);

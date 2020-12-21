@@ -10,6 +10,7 @@ GameState currentState;
 void SetState(); // Allows me to debug and switch between states
 int roundCount;
 int points;
+int lives = 3;
 
 template<class T1, class T2>
 bool isIntersecting(T1& thisShape, T2& otherShape)
@@ -150,10 +151,13 @@ int main()
         return EXIT_FAILURE;
 #pragma endregion
 
+
+
 #pragma region Text
     stateIndicator.setPosition(0, 10); stateIndicator.setFont(PressStart); stateIndicator.setFillColor(Color::White); stateIndicator.setCharacterSize(14); stateIndicator.setString("Current State: ");
     stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);  stateText.setFont(PressStart); stateText.setFillColor(Color::Red); stateText.setCharacterSize(16);
     startText.setPosition(410, 500); startText.setFont(PressStart); startText.setFillColor(Color::White); startText.setCharacterSize(16); startText.setString("Press Return To Start Game");
+    livesText.setPosition(1100, 30); livesText.setFont(PressStart); livesText.setFillColor(Color::White); livesText.setCharacterSize(16); livesText.setString("Lives: ");
 #pragma endregion
 
 #pragma region Sprites
@@ -198,15 +202,12 @@ int main()
                 window.draw(MainMenuOverlay);
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
                     currentState = Aiming;
-
                     points = 0;
-
                     //Init bricks
                     for (int x{ 0 }; x < brickCountX; x++)
                         for (int y{ 0 }; y < brickCountY; y++)
                             bricks.emplace_back(
                                 (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
-
                 }
                 break;
             case 1:
@@ -245,8 +246,12 @@ int main()
         window.clear();
         playerPaddle.draw(window);
         ball.Draw(window);
-        auto s = to_string(points);
-        pointText.setPosition(900, 0); pointText.setFont(PressStart); pointText.setFillColor(Color::White); pointText.setCharacterSize(40); pointText.setString(s);
+        auto _points = to_string(points);
+        auto _lives = to_string(lives);
+        pointText.setPosition(640, 0); pointText.setFont(PressStart); pointText.setFillColor(Color::White); pointText.setCharacterSize(40); pointText.setString(_points);
+        window.draw(livesText);
+        livesCount.setPosition(1210, 30); livesCount.setFont(PressStart); livesCount.setFillColor(Color::Yellow); livesCount.setCharacterSize(16); livesCount.setString(_lives);
+        window.draw(livesCount);
         window.draw(pointText);
       
        //Draw each 'brick' in bricks and set the texture of the brick based on its height
@@ -295,6 +300,8 @@ int main()
             ball.Draw(window);
             playerPaddle.draw(window);
             for (auto& brick : bricks) window.draw(brick.shape);
+
+            
         }
 
         window.draw(stateIndicator);

@@ -80,16 +80,8 @@ void BrickCollisions(Bricks& _brick, Ball& _ball)
 }
 
 int main()
-{
-    Clock clock; // System Clock
-    float deltaTime = 0.0f; 
-    float timerTextFloat = 1.0f;
-
-    // Defines the window
-    RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
-    window.setFramerateLimit(60);
-    window.setVerticalSyncEnabled(true);
-
+{   
+ // Graphical Elements can be hidden with their respective regions for readibility
  #pragma region Textures
     if (!redBlock.loadFromFile(IMAGE_PATH "red.png"))
         return EXIT_FAILURE;
@@ -100,6 +92,8 @@ int main()
     if (!greenBlock.loadFromFile(IMAGE_PATH "green.png"))
         return EXIT_FAILURE;
     if (!menuOverlay.loadFromFile(IMAGE_PATH "MainScreen.png"))
+        return EXIT_FAILURE;
+    if (!gameOverlay.loadFromFile(IMAGE_PATH "GameOverlay.png"))
         return EXIT_FAILURE;
 
     // Paddle Texture
@@ -120,10 +114,6 @@ int main()
 #pragma region SoundBuffers
     if (!brickHit.loadFromFile(AUDIO_PATH "brickHit.wav"))
         return EXIT_FAILURE;
-    if (!countdown1.loadFromFile(AUDIO_PATH "countdown1.wav"))
-        return EXIT_FAILURE;
-    if (!countdown2.loadFromFile(AUDIO_PATH "countdown2.wav"))
-        return EXIT_FAILURE;
     if (!gameOver.loadFromFile(AUDIO_PATH "gameOver.wav"))
         return EXIT_FAILURE;
     if (!loseLife.loadFromFile(AUDIO_PATH "hurt.wav"))
@@ -143,15 +133,10 @@ int main()
     lifeSound.setBuffer(loseLife); lifeSound.setVolume(50);
     pointSound.setBuffer(gainPoints); pointSound.setVolume(50);
     gameOverSound.setBuffer(gameOver); gameOverSound.setVolume(50);
-    countdownSound.setBuffer(countdown1); countdownSound.setVolume(50);
-    countdownSound2.setBuffer(countdown2); countdownSound2.setVolume(50);
     winSound.setBuffer(roundComplete); winSound.setVolume(50);
 #pragma endregion
 
-#pragma region Fonts
-    if (!Bungee.loadFromFile(FONT_PATH "Bungee.ttf"))
-        return EXIT_FAILURE;
-
+#pragma region Font
     if (!PressStart.loadFromFile(FONT_PATH "PressStart2P.ttf"))
         return EXIT_FAILURE;
 #pragma endregion
@@ -168,11 +153,11 @@ int main()
     stateText.setFillColor(Color::Red); 
     stateText.setCharacterSize(16);
 
-    startText.setPosition(410, 500);
+    startText.setPosition(450, 500);
     startText.setFont(PressStart);
     startText.setFillColor(Color::White);
     startText.setCharacterSize(16); 
-    startText.setString("Press Space To Start Game");
+    startText.setString("Press Enter To Start Game");
 
     livesText.setPosition(1100, 30);
     livesText.setFont(PressStart); 
@@ -210,11 +195,23 @@ int main()
 #pragma endregion
 
 #pragma region Sprites
-    Sprite MainMenuOverlay;
+    Sprite MainMenuOverlay, GameOverlay;
     MainMenuOverlay.setTexture(menuOverlay);
     MainMenuOverlay.setPosition(0, 0);
+
+    GameOverlay.setTexture(gameOverlay);
+    MainMenuOverlay.setPosition(0, 0);
+
 #pragma endregion
 
+    Clock clock; // System Clock
+    float deltaTime = 0.0f;
+    float timerTextFloat = 1.0f;
+
+    // Defines the window
+    RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
+    window.setFramerateLimit(60);
+    window.setVerticalSyncEnabled(true);
     
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
@@ -244,10 +241,10 @@ int main()
             deltaTime = clock.getElapsedTime().asSeconds();
             clock.restart();
             
-            // State Machine
+            // State Machine Switch
             switch (currentState) {
-            case 0:
-                // Menu
+            case 0: // Menu
+                
                 stateText.setString("Menu");
                 window.draw(MainMenuOverlay);
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
@@ -256,44 +253,43 @@ int main()
                     roundCount++;
                 }
                 break;
-            case 1:
-                // Aim
+            case 1: // Aim
+                
                 stateText.setString("Aiming");
+
                 // Wait for player input to start playing
                 ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
                 if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
                     currentState = Playing;
                 }
                 break;
-            case 2:
-                // Round Start         
+            case 2: // Round Start    
+
                 stateText.setString("Round Start");
-                bricks.clear();
+                bricks.clear(); // Clear bricks vector
+
                 //Init bricks
                 for (int x{ 0 }; x < brickCountX; x++)
                     for (int y{ 0 }; y < brickCountY; y++)
                         bricks.emplace_back(
                             (x + 0.8f) * (brickWidth + 2), (y + 2) * (brickHeight + 20));
                 break;
-            case 3:
-                // Playing
+            case 3: // Playing
+                
                 stateText.setString("Playing");
                 break;
-            case 4:
-                // Pause
+            case 4: // Pause
+                
                 stateText.setString("Round Ended");
                 break;
-            case 5:
-                // Out Of Lives
+            case 5: // Out Of Lives
                 stateText.setString("Out Of Lives");
                 break;
-            case 6:
-                // Switch Rounds
+            case 6: // Switch Rounds                
                 stateText.setString("Round Over");
                 break;
             }
 
-            // Close Window
             if (event.type == Event::Closed)
                 window.close();          
         }
@@ -307,8 +303,9 @@ int main()
 
         auto _rounds = to_string(roundCount);
 
-        //Update Ball, Paddle, Bricks Vector, Game State etc.
+        //Update Ball, Paddle, Bricks Vector, Game State and other graphical elements
         window.clear();
+        window.draw(GameOverlay);
         playerPaddle.draw(window);
         ball.Draw(window);        
         window.draw(livesText);    
@@ -338,7 +335,8 @@ int main()
         }
 
         if (currentState == Aiming) {
-            currentState = Aiming;
+            startText.setString("Press Space or LMB to Launch");
+            window.draw(startText);
             ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
             playerPaddle.Update(deltaTime, window);
         }
@@ -392,10 +390,12 @@ int main()
         }
 
         if (currentState == OutOfLives) {
+            
             window.draw(gameOverText);
             window.draw(pressR);
 
             if (Keyboard::isKeyPressed(Keyboard::R)) {
+                gameOverSound.play();
                 currentState = RoundStart;
                 ball.lives = 3;
                 points = 0;

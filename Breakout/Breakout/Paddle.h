@@ -1,6 +1,5 @@
 #pragma once
 #include "Definitions.h"
-
 class Paddle
 {
 public:
@@ -9,7 +8,7 @@ public:
 
 	sf::RectangleShape shape;
 	sf::Vector2f velocity;
-	void Update(float deltaTime, sf::RenderWindow& window);
+	void Update(float deltaTime, sf::RenderWindow& window); // Render window is an argument to get the mouse position
 	void draw(sf::RenderWindow& window);
 
 	float x() { return shape.getPosition().x; }
@@ -23,4 +22,3 @@ private:
 	float paddleWidth{ 200.f }, paddleHeight{ 30.f }, paddleVelocity{ 100.f };
 	sf::Vector2f mousePos;
 };
-

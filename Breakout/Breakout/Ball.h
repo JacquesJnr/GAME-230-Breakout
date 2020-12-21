@@ -1,13 +1,12 @@
 #pragma once
 #include "Definitions.h"
-#include "Paddle.h"
 
 class Ball
 {
 public:
 
 	Ball(float mX, float mY);
-	void Update(float deltaTime, Paddle paddle);
+	void Update(float deltaTime);
 	void Draw(sf::RenderWindow& window);
 
 	sf::CircleShape shape;

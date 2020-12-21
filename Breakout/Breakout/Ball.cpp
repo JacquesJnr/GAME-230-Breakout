@@ -7,7 +7,7 @@ Ball::Ball(float mX, float mY)
     shape.setOrigin(ballRadius, ballRadius);
 }
 
-void Ball::Update(float deltaTime, Paddle paddle)
+void Ball::Update(float deltaTime)
 {
     shape.move(velocity);
 
@@ -21,9 +21,6 @@ void Ball::Update(float deltaTime, Paddle paddle)
         velocity.y = ballVelocity;
     else if (bottom() > HEIGHT + 100)
         velocity.y = -ballVelocity;
-    else if (bottom() > paddle.top() && x() < paddle.right() && x() > paddle.left()) {
-        velocity.y = -ballVelocity;
-    }
 }
 
 void Ball::Draw(sf::RenderWindow& window)

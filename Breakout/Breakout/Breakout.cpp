@@ -9,6 +9,28 @@ using namespace sf;
 GameState currentState;
 void SetState(); // Allows me to debug and switch between states
 
+template<class T1, class T2>
+bool isIntersecting(T1& thisShape, T2& otherShape)
+{
+    return thisShape.right() >= otherShape.left() && thisShape.left() <= otherShape.right() &&
+        thisShape.bottom() >= otherShape.top() && thisShape.top() <= otherShape.bottom();
+}
+
+void CheckCollisions(Paddle& _paddle, Ball& _ball)
+{
+    // If there's no intersection, return
+    if (!isIntersecting(_paddle, _ball)) return;
+
+    // Otherwise let's "push" the ball upwards
+    _ball.velocity.y = -_ball.velocity.y;
+
+    // Direct the balls direction depending on the position where it hit the paddle
+    if (_ball.x() < _paddle.x())
+        _ball.velocity.x = -_ball.velocity.y;
+    else
+        _ball.velocity.x = -_ball.velocity.y;;
+}
+
 int main()
 {
     Clock clock; // System Clock
@@ -206,8 +228,9 @@ int main()
         }
 
         if (currentState == Playing) {
-            ball.Update(deltaTime, playerPaddle);
+            ball.Update(deltaTime);
             playerPaddle.Update(deltaTime, window);
+            CheckCollisions(playerPaddle, ball);
         }
 
         window.draw(stateIndicator);

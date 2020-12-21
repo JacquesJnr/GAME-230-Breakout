@@ -32,6 +32,54 @@ void CheckCollisions(Paddle& _paddle, Ball& _ball)
         _ball.velocity.x = _ballVelocity;
 }
 
+void BrickCollisions(Bricks& _brick, Ball& _ball)
+{
+    float ballVelocity = 10.f;
+
+    // If there's no intersection, return
+    if (!isIntersecting(_brick, _ball)) return;
+
+    // Otherwise, the brick has been hit!
+    _brick.Destroyed = true;
+
+    // Calculates when magnitude of the overlap between the ball and the brick
+    float overlapLeft{ _ball.right() - _brick.left() };
+    float overlapRight{ _brick.right() - _ball.left() };
+    float overlapTop{ _ball.bottom() - _brick.top() };
+    float overlapBottom{ _brick.bottom() - _ball.top() };
+
+    // If the magnitude of the left overlap is smaller than the
+    // right one we can safely assume the ball hit the brick
+    // from the left
+    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+
+    // We can apply the same idea for top/bottom collisions
+    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+
+    // Let's store the minimum overlaps for the X and Y axes
+    float minOverlapX{ ballFromLeft ? overlapLeft : overlapRight };
+    float minOverlapY{ ballFromTop ? overlapTop : overlapBottom };
+
+    // If the magnitude of the X overlap is less than the magnitude
+    // of the Y overlap, we can safely assume the ball hit the brick
+    // horizontally - otherwise, the ball hit the brick vertically
+
+    // Then, upon our assumptions, we change either the X or Y velocity
+    // of the ball, creating a "realistic" response for the collision
+    if (abs(minOverlapX) < abs(minOverlapY))
+        _ball.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
+    else
+        _ball.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
+}
+void InitBricks(vector<Bricks>) {
+
+    
+}
+
+void DrawBricks(vector<Bricks>bricks) {
+
+}
+
 int main()
 {
     Clock clock; // System Clock
@@ -39,13 +87,6 @@ int main()
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Breakout!", Style::Titlebar | Style::Close);
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
-
-    vector<Bricks> bricks;
-
-    float _brickWidth = 60.f;
-    float _brickHeight = 20.f;
-    int _brickCountX = 20;
-    int _brickCountY = 4;
 
  #pragma region Textures
     if (!redBlock.loadFromFile(IMAGE_PATH "red.png"))
@@ -127,22 +168,23 @@ int main()
     MainMenuOverlay.setPosition(0, 0);
 #pragma endregion
 
+    vector<Bricks> bricks;
 
+    float _brickWidth = 60.f;
+    float _brickHeight = 20.f;
+    int _brickCountX = 20;
+    int _brickCountY = 4;
     // Fills up a vector via a 2D for loop, creating
-   // bricks in a grid-like pattern
-    for (int x{0}; x < _brickCountX; x++)
+    // bricks in a grid-like pattern
+    for (int x{ 0 }; x < _brickCountX; x++)
     {
-        for (int y{0}; y < _brickCountY; y++) 
+        for (int y{ 0 }; y < _brickCountY; y++)
         {
             // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
             bricks.emplace_back(
                 (x + 0.8f) * (_brickWidth + 2), (y + 2) * (_brickHeight + 20));
         }
-    }        
-
-
-    // Create 1 brick
-    //Bricks myBrick(WIDTH / 2, 80);
+    }
 
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
@@ -176,9 +218,9 @@ int main()
                 stateText.setString("Aiming");
                 // Wait for player input to start playing
                 ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
-                if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
+                /*if (Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left)) {
                     currentState = Playing;
-                }
+                }*/
                 break;
             case 2:
                 // Play
@@ -238,6 +280,14 @@ int main()
             ball.Update(deltaTime);
             playerPaddle.Update(deltaTime, window);
             CheckCollisions(playerPaddle, ball);
+            for (auto& brick : bricks) BrickCollisions(brick, ball);
+
+            // Using this nutty "erase-remove idiom" to remove all `destroyed`
+            // blocks from the block vector - using a cool C++11 lambda!  https://en.cppreference.com/w/cpp/container/vector/erase2
+            bricks.erase(remove_if(begin(bricks), end(bricks),[](const Bricks& mBrick)
+            {
+                return mBrick.Destroyed;
+            }),end(bricks));
         }
 
         window.draw(stateIndicator);

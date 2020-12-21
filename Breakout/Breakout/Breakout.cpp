@@ -208,16 +208,20 @@ int main()
         playerPaddle.draw(window);
         ball.Draw(window);
       
-       //Draw each 'brick' in bricks
+       //Draw each 'brick' in bricks and set the texture of the brick based on its height
         for (auto& brick : bricks) {
             if (brick.shape.getPosition().y == 80)
                 brick.shape.setTexture(&redBlock);
+
             if (brick.shape.getPosition().y == 120)
                 brick.shape.setTexture(&orangeBlock);
+
             if (brick.shape.getPosition().y == 160)
                 brick.shape.setTexture(&yellowBlock);
+
             if (brick.shape.getPosition().y ==200)
                 brick.shape.setTexture(&greenBlock);
+
             brick.Draw(window);
         }
 

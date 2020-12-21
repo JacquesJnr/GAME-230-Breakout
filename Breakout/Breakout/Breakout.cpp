@@ -130,15 +130,19 @@ int main()
 
     // Fills up a vector via a 2D for loop, creating
    // bricks in a grid-like pattern
-    for (int x{0}; x < _brickCountX; ++x)
+    for (int x{0}; x < _brickCountX; x++)
     {
-        for (int y{0}; y < _brickCountY; ++y) 
+        for (int y{0}; y < _brickCountY; y++) 
         {
             // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
             bricks.emplace_back(
                 (x + 0.8f) * (_brickWidth + 2), (y + 2) * (_brickHeight + 20));
         }
     }        
+
+
+    // Create 1 brick
+    //Bricks myBrick(WIDTH / 2, 80);
 
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
@@ -203,13 +207,18 @@ int main()
         window.clear();
         playerPaddle.draw(window);
         ball.Draw(window);
-
+      
        //Draw each 'brick' in bricks
         for (auto& brick : bricks) {
-            if (brick.shape.getPosition().y == 0) {
-                brick.shape.setFillColor(Color::Red);
-            }
-            brick.Draw(&window);
+            if (brick.shape.getPosition().y == 80)
+                brick.shape.setTexture(&redBlock);
+            if (brick.shape.getPosition().y == 120)
+                brick.shape.setTexture(&orangeBlock);
+            if (brick.shape.getPosition().y == 160)
+                brick.shape.setTexture(&yellowBlock);
+            if (brick.shape.getPosition().y ==200)
+                brick.shape.setTexture(&greenBlock);
+            brick.Draw(window);
         }
 
         if (currentState == Menu) {

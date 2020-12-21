@@ -13,7 +13,7 @@ public:
     // Brick Constructor
     Bricks(float X, float Y);
 
-    void Draw(sf::RenderWindow* window);
+    void Draw(sf::RenderWindow& window);
 
     float x() { return shape.getPosition().x; }
     float y() { return shape.getPosition().y; }

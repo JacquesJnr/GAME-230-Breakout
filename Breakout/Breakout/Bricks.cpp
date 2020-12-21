@@ -8,7 +8,7 @@ Bricks::Bricks(float X, float Y)
     shape.setOrigin(brickWidth / 2.f, brickHeight / 2.f);
 }
 
-void Bricks::Draw(sf::RenderWindow* window)
+void Bricks::Draw(sf::RenderWindow& window)
 {
-    window->draw(shape);
+    window.draw(shape);
 }

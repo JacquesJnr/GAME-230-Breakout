@@ -11,7 +11,9 @@ public:
     bool Destroyed{ false };
 
     // Brick Constructor
-    Bricks(sf::Texture* texture, float mX, float mY);
+    Bricks(float X, float Y);
+
+    void Draw(sf::RenderWindow* window);
 
     float x() { return shape.getPosition().x; }
     float y() { return shape.getPosition().y; }
@@ -20,8 +22,8 @@ public:
     float top() { return y() - shape.getSize().y / 2.f; }
     float bottom() { return y() + shape.getSize().y / 2.f; }
 
-private:
-    float blockWidth{ 60.f }, blockHeight{ 20.f };
-    int countBlocksX{ 11 }, countBlocksY{ 4 };
+
+    float brickWidth{ 60.f }, brickHeight{ 20.f };
+    int brickCountX, brickCountY;
 };
 

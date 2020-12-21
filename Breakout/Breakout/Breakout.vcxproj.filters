@@ -24,10 +24,10 @@
     <ClCompile Include="Paddle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Blocks.cpp">
+    <ClCompile Include="Main_Menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main_Menu.cpp">
+    <ClCompile Include="Bricks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,9 +41,6 @@
     <ClInclude Include="Paddle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Blocks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -54,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bricks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

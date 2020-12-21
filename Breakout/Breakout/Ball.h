@@ -19,8 +19,6 @@ public:
 	float right() { return x() + shape.getRadius(); }
 	float top() { return y() - shape.getRadius(); }
 	float bottom() { return y() + shape.getRadius(); }
-
-private:
 	float ballRadius{ 10.f }, ballVelocity{ 10.f };
 };
 

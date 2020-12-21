@@ -146,14 +146,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
-    <ClCompile Include="Blocks.cpp" />
     <ClCompile Include="Breakout.cpp" />
+    <ClCompile Include="Bricks.cpp" />
     <ClCompile Include="Main_Menu.cpp" />
     <ClCompile Include="Paddle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
-    <ClInclude Include="Blocks.h" />
+    <ClInclude Include="Bricks.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Framework.h" />

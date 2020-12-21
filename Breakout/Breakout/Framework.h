@@ -8,9 +8,13 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 
+using namespace sf;
+
 //C++ Libraries
 #include <string>
 #include <ctime>
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+
+using namespace std;

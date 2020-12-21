@@ -3,8 +3,8 @@
 #include "Definitions.h"
 #include "Paddle.h"
 #include "Ball.h"
+#include "Bricks.h"
 #include "GameElements.h"
-using namespace sf;
 
 GameState currentState;
 void SetState(); // Allows me to debug and switch between states
@@ -18,17 +18,18 @@ bool isIntersecting(T1& thisShape, T2& otherShape)
 
 void CheckCollisions(Paddle& _paddle, Ball& _ball)
 {
+    float _ballVelocity = 10.f;
+
     // If there's no intersection, return
     if (!isIntersecting(_paddle, _ball)) return;
 
-    // Otherwise let's "push" the ball upwards
     _ball.velocity.y = -_ball.velocity.y;
 
     // Direct the balls direction depending on the position where it hit the paddle
     if (_ball.x() < _paddle.x())
-        _ball.velocity.x = -_ball.velocity.y;
+        _ball.velocity.x = -_ballVelocity;
     else
-        _ball.velocity.x = -_ball.velocity.y;;
+        _ball.velocity.x = _ballVelocity;
 }
 
 int main()
@@ -39,14 +40,14 @@ int main()
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
 
-    struct Bricks {
-        RectangleShape body;
-        Vector2f size = Vector2f(100, 50);
-    };
+    vector<Bricks> bricks;
 
-    Bricks red, orange, yellow, green;
+    float _brickWidth = 60.f;
+    float _brickHeight = 20.f;
+    int _brickCountX = 11;
+    int _brickCountY = 4;
 
-#pragma region Textures
+ #pragma region Textures
     if (!redBlock.loadFromFile(IMAGE_PATH "red.png"))
         return EXIT_FAILURE;
     if (!orangeBlock.loadFromFile(IMAGE_PATH "orange.png"))
@@ -120,39 +121,23 @@ int main()
 
 #pragma endregion
 
-#pragma region Red Brick
-    red.body.setOrigin(0.5f, 0.5f);
-    red.body.setPosition(WIDTH / 2 - 100, 50);
-    red.body.setTexture(&redBlock);
-    red.body.setSize(red.size);
-#pragma endregion
-
-#pragma region Yellow Brick
-    yellow.body.setOrigin(0.5f, 0.5f);
-    yellow.body.setPosition(WIDTH / 2 - 100, 100);
-    yellow.body.setTexture(&yellowBlock);
-    yellow.body.setSize(red.size);
-#pragma endregion
-
-#pragma region Orange Brick
-    orange.body.setOrigin(0.5f, 0.5f);
-    orange.body.setPosition(WIDTH / 2 - 100, 150);
-    orange.body.setTexture(&orangeBlock);
-    orange.body.setSize(red.size);
-#pragma endregion
-    
-#pragma region Green Brick
-    green.body.setOrigin(0.5f, 0.5f);
-    green.body.setPosition(WIDTH / 2 - 100, 200);
-    green.body.setTexture(&greenBlock);
-    green.body.setSize(red.size);
-#pragma endregion
-
 #pragma region Sprites
     Sprite MainMenuOverlay;
     MainMenuOverlay.setTexture(menuOverlay);
     MainMenuOverlay.setPosition(0, 0);
 #pragma endregion
+
+
+    // Fills up a vector via a 2D for loop, creating
+   // bricks in a grid-like pattern
+    for (int x{ 0 }; x < _brickCountX; ++x)
+    {
+        for (int y{ 0 }; y < _brickCountY; ++y)
+            bricks.emplace_back( // C++ 11 emplace_back: https://en.cppreference.com/w/cpp/container/vector/emplace_back
+                (x + 1) * (_brickWidth + 3) + 22, (y + 2) * (_brickHeight + 3));
+    }
+
+        
 
     // Create Paddle
     Paddle playerPaddle(&paddleTexture, WIDTH /2 , 670);
@@ -163,7 +148,7 @@ int main()
 
     while (window.isOpen())
     {
-        sf::Event event;
+        Event event;
         while (window.pollEvent(event))
         {
           
@@ -209,15 +194,21 @@ int main()
             }
 
             // Close Window
-            if (event.type == sf::Event::Closed)
+            if (event.type == Event::Closed)
                 window.close();          
         }       
 
         //Update
         window.clear();
         playerPaddle.draw(window);
-        window.draw(ball.shape);
-       
+        ball.Draw(window);
+
+       //Draw each 'brick' in bricks
+        for (auto& brick : bricks) {
+            brick.shape.setTexture(&redBlock);
+            brick.Draw(&window);
+        }
+
         if (currentState == Menu) {
             window.draw(MainMenuOverlay);
             window.draw(startText);

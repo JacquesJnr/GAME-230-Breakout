@@ -1,9 +1,14 @@
 #include "Bricks.h"
 
-Bricks::Bricks(sf::Texture* texture, float mX, float mY)
+Bricks::Bricks(float X, float Y)
 {
-    shape.setPosition(mX, mY);
-    shape.setSize({ blockWidth, blockHeight });
-    shape.setTexture(texture);
-    shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+    shape.setPosition(X, Y);
+    shape.setSize({ brickWidth, brickHeight });
+    //shape.setTexture(texture);
+    shape.setOrigin(brickWidth / 2.f, brickHeight / 2.f);
+}
+
+void Bricks::Draw(sf::RenderWindow* window)
+{
+    window->draw(shape);
 }

@@ -142,16 +142,16 @@ int main()
 #pragma endregion
 
 #pragma region Text
-    stateIndicator.setPosition(0, 10);
+  /*  stateIndicator.setPosition(0, 10);
     stateIndicator.setFont(PressStart); 
     stateIndicator.setFillColor(Color::White);
     stateIndicator.setCharacterSize(14);
-    stateIndicator.setString("Current State: ");
+    stateIndicator.setString("Current State: ");*/
 
-    stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);
+  /*  stateText.setPosition(stateIndicator.getPosition().x + 210, stateIndicator.getPosition().y);
     stateText.setFont(PressStart);
     stateText.setFillColor(Color::Red); 
-    stateText.setCharacterSize(16);
+    stateText.setCharacterSize(16);*/
 
     startText.setPosition(450, 500);
     startText.setFont(PressStart);
@@ -245,7 +245,7 @@ int main()
             switch (currentState) {
             case 0: // Menu
                 
-                stateText.setString("Menu");
+                //stateText.setString("Menu");
                 window.draw(MainMenuOverlay);
                 if (Keyboard::isKeyPressed(Keyboard::Enter)) {
                     currentState = RoundStart;
@@ -255,7 +255,7 @@ int main()
                 break;
             case 1: // Aim
                 
-                stateText.setString("Aiming");
+                //stateText.setString("Aiming");
 
                 // Wait for player input to start playing
                 ball.shape.setPosition(playerPaddle.shape.getPosition().x, playerPaddle.shape.getPosition().y - 40); // Sets the ball to follow the paddle
@@ -265,7 +265,7 @@ int main()
                 break;
             case 2: // Round Start    
 
-                stateText.setString("Round Start");
+               // stateText.setString("Round Start");
                 bricks.clear(); // Clear bricks vector
 
                 //Init bricks
@@ -276,20 +276,19 @@ int main()
                 break;
             case 3: // Playing
                 
-                stateText.setString("Playing");
+               // stateText.setString("Playing");
                 break;
             case 4: // Pause
                 
-                stateText.setString("Round Ended");
+                //stateText.setString("Round Ended");
                 break;
             case 5: // Out Of Lives
-                stateText.setString("Out Of Lives");
+                //stateText.setString("Out Of Lives");
                 break;
             case 6: // Switch Rounds                
-                stateText.setString("Round Over");
+                //stateText.setString("Round Over");
                 break;
             }
-
             if (event.type == Event::Closed)
                 window.close();          
         }
